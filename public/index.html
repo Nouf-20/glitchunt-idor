@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SupportDesk — Acme Support Customer Portal</title>
+  <meta name="description" content="SupportDesk by Acme Support — submit tickets, track progress, download invoices." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#" id="brandLink">
+        <span class="brand-mark">S</span>
+        <span>
+          <strong data-i18n="appName">SupportDesk</strong>
+          <small data-i18n="company">by Acme Support</small>
+        </span>
+      </a>
+      <nav class="nav" id="mainNav" hidden>
+        <button class="nav-btn" data-view="dashboard" data-i18n="navDashboard">Dashboard</button>
+        <button class="nav-btn" data-view="tickets" data-i18n="navTickets">Tickets</button>
+        <button class="nav-btn" data-view="invoices" data-i18n="navInvoices">Invoices</button>
+      </nav>
+      <div class="top-actions">
+        <button id="langToggle" class="btn ghost" type="button">عربي</button>
+        <span id="userChip" class="user-chip" hidden></span>
+        <button id="logoutBtn" class="btn ghost" type="button" hidden data-i18n="logout">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="alert" class="alert" hidden></div>
+
+    <!-- Auth view -->
+    <section id="view-auth" class="grid2">
+      <div class="hero card">
+        <h1 data-i18n="heroTitle">Customer support, without the waiting game.</h1>
+        <p data-i18n="heroSub">Open a ticket in a minute, follow progress in real time, and download your invoice as soon as billing is done. Built for Acme Support customers.</p>
+        <ul class="ticks">
+          <li data-i18n="tick1">Real ticket tracking with categories &amp; priorities</li>
+          <li data-i18n="tick2">Automatic PDF invoices per ticket</li>
+          <li data-i18n="tick3">English + Arabic interface</li>
+        </ul>
+        <div class="plans">
+          <div class="plan"><strong>$29–$149</strong><span data-i18n="planNote">per ticket, by priority</span></div>
+          <div class="plan"><strong>14d</strong><span data-i18n="planDue">payment terms</span></div>
+          <div class="plan"><strong>24h</strong><span data-i18n="planResp">first response</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tabs">
+          <button id="tabLogin" class="tab active" type="button" data-i18n="login">Log in</button>
+          <button id="tabRegister" class="tab" type="button" data-i18n="register">Create account</button>
+        </div>
+        <form id="loginForm" class="form">
+          <label><span data-i18n="email">Email</span><input name="email" type="email" required autocomplete="email" placeholder="you@company.com" /></label>
+          <label><span data-i18n="password">Password</span><input name="password" type="password" required autocomplete="current-password" placeholder="••••••••" /></label>
+          <button class="btn primary" type="submit" data-i18n="loginBtn">Log in</button>
+        </form>
+        <form id="registerForm" class="form" hidden>
+          <label><span data-i18n="name">Full name</span><input name="name" type="text" required autocomplete="name" placeholder="Jane Doe" /></label>
+          <label><span data-i18n="email">Email</span><input name="email" type="email" required autocomplete="email" placeholder="you@company.com" /></label>
+          <label><span data-i18n="password">Password</span><input name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="Min. 8 characters" /></label>
+          <button class="btn primary" type="submit" data-i18n="registerBtn">Create account</button>
+          <p class="muted" data-i18n="registerHint">Use a real email — this is your billing identity.</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="view-dashboard" hidden>
+      <div class="stats" id="stats"></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head"><h2 data-i18n="recentTickets">Recent tickets</h2><button class="btn ghost" data-view="tickets" data-i18n="viewAll">View all</button></div>
+          <div id="dashTickets" class="list"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2 data-i18n="recentInvoices">Recent invoices</h2><button class="btn ghost" data-view="invoices" data-i18n="viewAll">View all</button></div>
+          <div id="dashInvoices" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tickets -->
+    <section id="view-tickets" hidden>
+      <div class="card">
+        <div class="card-head"><h2 data-i18n="ticketsTitle">Support tickets</h2></div>
+        <form id="ticketForm" class="form inline-form">
+          <div class="row2">
+            <label><span data-i18n="subject">Subject</span><input name="subject" required minlength="4" maxlength="160" placeholder="VPN disconnects every hour" /></label>
+            <label><span data-i18n="priority">Priority</span>
+              <select name="priority">
+                <option value="low">Low</option>
+                <option value="normal" selected>Normal</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </label>
+          </div>
+          <label><span data-i18n="category">Category</span>
+            <select name="category">
+              <option value="general">General</option>
+              <option value="technical">Technical</option>
+              <option value="billing">Billing</option>
+              <option value="account">Account</option>
+            </select>
+          </label>
+          <label><span data-i18n="description">Description</span><textarea name="description" required minlength="10" maxlength="4000" rows="4" placeholder="Steps to reproduce, error messages, affected users…"></textarea></label>
+          <button class="btn primary" type="submit" data-i18n="createTicket">Open ticket &amp; generate invoice</button>
+        </form>
+      </div>
+      <div class="card"><div id="ticketList" class="list"></div></div>
+    </section>
+
+    <!-- Invoices -->
+    <section id="view-invoices" hidden>
+      <div class="card">
+        <div class="card-head"><h2 data-i18n="invoicesTitle">Invoices</h2></div>
+        <p class="muted" data-i18n="invoicesHint">Each support ticket generates a billable invoice. Click Download to get the official PDF.</p>
+        <div id="invoiceList" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© <span id="year"></span> Acme Support — SupportDesk</span>
+      <span class="muted" data-i18n="footerNote">Secure customer portal · billing@acme-support.example</span>
+    </div>
+  </footer>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

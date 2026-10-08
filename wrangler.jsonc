@@ -1,0 +1,22 @@
+/**
+ * SupportDesk — Customer Support Portal (Acme Support)
+ * Cloudflare Workers + D1 + static assets in ./public
+ */
+{
+  "$schema": "https://developers.cloudflare.com/schemas/config/contract.json",
+  "name": "acme-supportdesk",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./public"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "supportdesk-db",
+      "database_id": "94a8a047-0ace-4099-be16-d6b1fb1e6798",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

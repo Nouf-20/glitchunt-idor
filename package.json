@@ -1,0 +1,24 @@
+{
+  "name": "supportdesk",
+  "version": "1.0.0",
+  "description": "SupportDesk — Customer Support Portal by Acme Support (Cloudflare Workers + D1)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create supportdesk-db",
+    "db:migrate": "wrangler d1 migrations apply supportdesk-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply supportdesk-db --remote",
+    "db:seed": "node scripts/seed.mjs --local",
+    "db:seed:remote": "node scripts/seed.mjs --remote",
+    "db:reset": "wrangler d1 execute supportdesk-db --local --file ./scripts/reset.sql",
+    "setup": "npm install && npm run db:migrate && npm run db:seed",
+    "check": "tsc --noEmit",
+    "test:workflow": "node scripts/test-workflow.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261006.1",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.148.0"
+  }
+}
