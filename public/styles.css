@@ -11,6 +11,8 @@
   --radius: 14px;
 }
 * { box-sizing: border-box; }
+/* Class display rules (.form, .grid2) must never override the hidden attribute. */
+[hidden] { display: none !important; }
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, Arial, "Noto Kufi Arabic", sans-serif;
