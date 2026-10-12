@@ -21,6 +21,16 @@ const I18N = {
     category: "Category", description: "Description", createTicket: "Open ticket & generate invoice",
     invoicesTitle: "Invoices", invoicesHint: "Each support ticket generates a billable invoice. Click Download to get the official PDF.",
     footerNote: "Secure customer portal · billing@acme-support.example",
+    howTitle: "How it works",
+    step1t: "Open a ticket", step1d: "Describe the issue, pick a category and priority.",
+    step2t: "We resolve & bill", step2d: "An agent picks it up and an invoice is generated.",
+    step3t: "Download the invoice", step3d: "Get the official PDF from your dashboard.",
+    sampleBadge: "Sample", sampleMeta: "ticket #1042 · high priority",
+    sampleNote: "Track progress in real time, then download the invoice.",
+    vName: "Enter your full name (2+ characters).",
+    vEmail: "Enter a valid email address.",
+    vPassRequired: "Enter your password.",
+    vPassword: "Password must be at least 8 characters.",
   },
   ar: {
     appName: "مكتب الدعم", company: "بواسطة Acme Support",
@@ -38,6 +48,16 @@ const I18N = {
     category: "الفئة", description: "الوصف", createTicket: "فتح تذكرة وإصدار فاتورة",
     invoicesTitle: "الفواتير", invoicesHint: "كل تذكرة دعم تُنشئ فاتورة مستحقة. اضغط تنزيل للحصول على PDF الرسمي.",
     footerNote: "بوابة عملاء آمنة · billing@acme-support.example",
+    howTitle: "كيف يعمل",
+    step1t: "افتح تذكرة", step1d: "صِف المشكلة واختر الفئة والأولوية.",
+    step2t: "نحلّ ونُصدِر فاتورة", step2d: "يستلمها موظف الدعم وتُنشأ الفاتورة.",
+    step3t: "حمّل الفاتورة", step3d: "احصل على PDF الرسمي من لوحة التحكم.",
+    sampleBadge: "مثال", sampleMeta: "تذكرة #1042 · أولوية عالية",
+    sampleNote: "تابع التقدم لحظة بلحظة، ثم حمّل الفاتورة.",
+    vName: "أدخل الاسم الكامل (حرفان على الأقل).",
+    vEmail: "أدخل بريدًا إلكترونيًا صالحًا.",
+    vPassRequired: "أدخل كلمة المرور.",
+    vPassword: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
   },
 };
 
@@ -207,45 +227,112 @@ async function refresh() {
   }
 }
 
+function selectAuthTab(which) {
+  const login = which !== "register";
+  $("#tabLogin").classList.toggle("active", login);
+  $("#tabRegister").classList.toggle("active", !login);
+  $("#tabLogin").setAttribute("aria-selected", String(login));
+  $("#tabRegister").setAttribute("aria-selected", String(!login));
+  // Exactly one form visible at a time.
+  $("#loginForm").hidden = !login;
+  $("#registerForm").hidden = login;
+  clearFormErrors(login ? $("#loginForm") : $("#registerForm"));
+}
+
+function validEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || "").trim());
+}
+
+function setFieldError(input, msg) {
+  const form = input.closest("form");
+  const holder = form ? form.querySelector(`.field-error[data-for="${input.name}"]`) : null;
+  if (holder) holder.textContent = msg || "";
+  if (msg) input.setAttribute("aria-invalid", "true");
+  else input.removeAttribute("aria-invalid");
+}
+
+/** Sets errors for [name, msg] pairs; returns the first invalid input (or null). */
+function setFormErrors(form, pairs) {
+  let firstBad = null;
+  for (const [name, msg] of pairs) {
+    const input = form.querySelector(`[name="${name}"]`);
+    if (!input) continue;
+    setFieldError(input, msg);
+    if (msg && !firstBad) firstBad = input;
+  }
+  return firstBad;
+}
+
+function clearFormErrors(form) {
+  if (!form) return;
+  form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+  form.querySelectorAll(".field-error").forEach((el) => { el.textContent = ""; });
+}
+
 function wire() {
   $("#year").textContent = String(new Date().getFullYear());
   $("#langToggle").onclick = () => { lang = lang === "ar" ? "en" : "ar"; applyLang(); if (currentUser) refresh(); };
   $("#brandLink").onclick = (e) => { e.preventDefault(); if (currentUser) showView("dashboard"); };
   $$("#mainNav .nav-btn").forEach((b) => { b.onclick = () => showView(b.dataset.view); });
 
-  $("#tabLogin").onclick = () => {
-    $("#tabLogin").classList.add("active"); $("#tabRegister").classList.remove("active");
-    $("#loginForm").hidden = false; $("#registerForm").hidden = true;
-  };
-  $("#tabRegister").onclick = () => {
-    $("#tabRegister").classList.add("active"); $("#tabLogin").classList.remove("active");
-    $("#loginForm").hidden = true; $("#registerForm").hidden = false;
-  };
+  $("#tabLogin").onclick = () => selectAuthTab("login");
+  $("#tabRegister").onclick = () => selectAuthTab("register");
+
+  // Clear a field's inline error as soon as the user edits it (auth forms only).
+  for (const form of [$("#loginForm"), $("#registerForm")]) {
+    form.addEventListener("input", (e) => {
+      const t = e.target;
+      if (t && t.name) setFieldError(t, "");
+    });
+  }
 
   $("#loginForm").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
+    const form = e.target;
+    const fd = new FormData(form);
+    const email = String(fd.get("email") ?? "").trim();
+    const password = String(fd.get("password") ?? "");
+    let firstBad = null;
+    const emailMsg = validEmail(email) ? "" : I18N[lang].vEmail;
+    const passMsg = password ? "" : I18N[lang].vPassRequired;
+    firstBad = setFormErrors(form, [["email", emailMsg], ["password", passMsg]]);
+    if (emailMsg || passMsg) { if (firstBad) firstBad.focus(); return; }
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
     try {
       const { user } = await api("/api/login", {
         method: "POST",
-        body: JSON.stringify({ email: fd.get("email"), password: fd.get("password") }),
+        body: JSON.stringify({ email, password }),
       });
       setAuthed(user);
       showAlert(lang === "ar" ? "مرحبًا بعودتك!" : "Welcome back!", true);
     } catch (err) { showAlert(err.message); }
+    finally { btn.disabled = false; }
   };
 
   $("#registerForm").onsubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
+    const form = e.target;
+    const fd = new FormData(form);
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const password = String(fd.get("password") ?? "");
+    const nameMsg = name.length >= 2 ? "" : I18N[lang].vName;
+    const emailMsg = validEmail(email) ? "" : I18N[lang].vEmail;
+    const passMsg = password.length >= 8 ? "" : I18N[lang].vPassword;
+    const firstBad = setFormErrors(form, [["name", nameMsg], ["email", emailMsg], ["password", passMsg]]);
+    if (nameMsg || emailMsg || passMsg) { if (firstBad) firstBad.focus(); return; }
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
     try {
       const { user } = await api("/api/register", {
         method: "POST",
-        body: JSON.stringify({ name: fd.get("name"), email: fd.get("email"), password: fd.get("password") }),
+        body: JSON.stringify({ name, email, password }),
       });
       setAuthed(user);
       showAlert(lang === "ar" ? "تم إنشاء الحساب!" : "Account created!", true);
     } catch (err) { showAlert(err.message); }
+    finally { btn.disabled = false; }
   };
 
   $("#logoutBtn").onclick = async () => {

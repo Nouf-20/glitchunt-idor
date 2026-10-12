@@ -48,21 +48,38 @@
           <div class="plan"><strong>14d</strong><span data-i18n="planDue">payment terms</span></div>
           <div class="plan"><strong>24h</strong><span data-i18n="planResp">first response</span></div>
         </div>
+        <div class="how">
+          <h2 data-i18n="howTitle">How it works</h2>
+          <ol class="steps">
+            <li><strong data-i18n="step1t">Open a ticket</strong><span data-i18n="step1d">Describe the issue, pick a category and priority.</span></li>
+            <li><strong data-i18n="step2t">We resolve &amp; bill</strong><span data-i18n="step2d">An agent picks it up and an invoice is generated.</span></li>
+            <li><strong data-i18n="step3t">Download the invoice</strong><span data-i18n="step3d">Get the official PDF from your inbox or dashboard.</span></li>
+          </ol>
+        </div>
+        <div class="sample" aria-hidden="true">
+          <div class="sample-head">
+            <span class="pill open" data-i18n="sampleBadge">Sample</span>
+            <span class="muted" data-i18n="sampleMeta">ticket #1042 · high priority</span>
+          </div>
+          <p class="sample-subject">VPN disconnects every hour</p>
+          <div class="sample-bar"><span></span></div>
+          <p class="muted sample-note" data-i18n="sampleNote">Track progress in real time, then download the invoice.</p>
+        </div>
       </div>
       <div class="card">
-        <div class="tabs">
-          <button id="tabLogin" class="tab active" type="button" data-i18n="login">Log in</button>
-          <button id="tabRegister" class="tab" type="button" data-i18n="register">Create account</button>
+        <div class="tabs" role="tablist">
+          <button id="tabLogin" class="tab active" type="button" role="tab" aria-selected="true" aria-controls="loginForm" data-i18n="login">Log in</button>
+          <button id="tabRegister" class="tab" type="button" role="tab" aria-selected="false" aria-controls="registerForm" data-i18n="register">Create account</button>
         </div>
-        <form id="loginForm" class="form">
-          <label><span data-i18n="email">Email</span><input name="email" type="email" required autocomplete="email" placeholder="you@company.com" /></label>
-          <label><span data-i18n="password">Password</span><input name="password" type="password" required autocomplete="current-password" placeholder="••••••••" /></label>
+        <form id="loginForm" class="form" novalidate>
+          <label><span data-i18n="email">Email</span><input name="email" type="email" required autocomplete="email" placeholder="you@company.com" aria-describedby="loginEmailErr" /><small class="field-error" id="loginEmailErr" data-for="email"></small></label>
+          <label><span data-i18n="password">Password</span><input name="password" type="password" required autocomplete="current-password" placeholder="••••••••" aria-describedby="loginPassErr" /><small class="field-error" id="loginPassErr" data-for="password"></small></label>
           <button class="btn primary" type="submit" data-i18n="loginBtn">Log in</button>
         </form>
-        <form id="registerForm" class="form" hidden>
-          <label><span data-i18n="name">Full name</span><input name="name" type="text" required autocomplete="name" placeholder="Jane Doe" /></label>
-          <label><span data-i18n="email">Email</span><input name="email" type="email" required autocomplete="email" placeholder="you@company.com" /></label>
-          <label><span data-i18n="password">Password</span><input name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="Min. 8 characters" /></label>
+        <form id="registerForm" class="form" hidden novalidate>
+          <label><span data-i18n="name">Full name</span><input name="name" type="text" required autocomplete="name" placeholder="Jane Doe" aria-describedby="regNameErr" /><small class="field-error" id="regNameErr" data-for="name"></small></label>
+          <label><span data-i18n="email">Email</span><input name="email" type="email" required autocomplete="email" placeholder="you@company.com" aria-describedby="regEmailErr" /><small class="field-error" id="regEmailErr" data-for="email"></small></label>
+          <label><span data-i18n="password">Password</span><input name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="Min. 8 characters" aria-describedby="regPassErr" /><small class="field-error" id="regPassErr" data-for="password"></small></label>
           <button class="btn primary" type="submit" data-i18n="registerBtn">Create account</button>
           <p class="muted" data-i18n="registerHint">Use a real email — this is your billing identity.</p>
         </form>
